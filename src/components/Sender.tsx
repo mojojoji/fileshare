@@ -10,22 +10,13 @@ const Sender = observer(() => {
   const store = useStore();
   const { connect } = store;
 
-  useEffect(() => {
-    sendFile();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [connect.isRemoteReady]);
-
-  const sendFile = () => {
-    if (connect.isRemoteReady && file) {
-      connect.sendFile(file);
-    }
-  };
-
   const handleFileChange = (e: Event) => {
     const input = e.target as HTMLInputElement;
-    const files = input.files;
-    if (files && files.length > 0) {
-      setFile(files[0]);
+    const selectedFiles = input.files;
+    if (selectedFiles && selectedFiles.length > 0) {
+      setFile(selectedFiles[0]);
+      const selectedFile = selectedFiles[0];
+      connect.setFileToSend(selectedFile);
     }
   };
 
@@ -42,7 +33,16 @@ const Sender = observer(() => {
     <Box>
       Test: {connect.id}
       <Box>
-        <Box>File Selected: {file ? file.name : 'No file selected'}</Box>
+        {!connect.fileMeta && <Box>No File selected</Box>}
+
+        {connect.fileMeta && (
+          <Box>
+            File Selected
+            <Box>Filename : {connect.fileMeta.name}</Box>
+            <Box>Type : {connect.fileMeta.type}</Box>
+            <Box>Size : {connect.fileMeta.size}</Box>
+          </Box>
+        )}
         <Button onClick={handleUploadClick}>Select file</Button>
       </Box>
       {file && connect.id && (
