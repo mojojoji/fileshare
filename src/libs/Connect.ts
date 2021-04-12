@@ -1,5 +1,5 @@
+import { isNullOrUndefined } from 'node:util';
 import Peer, { DataConnection } from 'peerjs';
-import { saveAs } from 'file-saver';
 import streamSaver from 'streamsaver';
 
 enum Mode {
@@ -107,7 +107,6 @@ export default class Connect {
   async sendRemoteReady(): Promise<void> {
     if (!this.connection) return;
 
-    console.log('Sending ready');
     this.connection.send({
       type: MessageType.REMOTE_READY,
       remoteId: this.connection.peer,
@@ -117,7 +116,6 @@ export default class Connect {
   async sendFileMeta(): Promise<void> {
     if (!this.connection || !this.fileToSend) return;
 
-    console.log('Sending file meta');
     this.connection.send({
       type: MessageType.FILE_META,
       filemeta: {
@@ -131,7 +129,6 @@ export default class Connect {
   async sendFileDownloadRequest(): Promise<void> {
     if (!this.connection) return;
 
-    console.log('Sending file donwload request');
     this.connection.send({
       type: MessageType.FILE_DOWNLOAD,
     });
@@ -148,12 +145,14 @@ export default class Connect {
       readData = await reader.read();
       if (readData.value) {
         const data = readData.value;
-        console.log('Reader data', data);
 
-        await this.connection.send({
+        this.connection.send({
           type: MessageType.FILE_CHUNK,
           buffer: data,
         });
+
+        // await new Promise((resolve) => setTimeout(() => resolve(null), 30));
+        // console.log('Chunk sent');
       }
     } while (readData && !readData.done);
 
@@ -167,7 +166,6 @@ export default class Connect {
   }
 
   handleData(data: Message) {
-    console.log('Message received', data);
     switch (data.type) {
       case MessageType.REMOTE_READY:
         this.handleRemoteReadyMessage(data);
@@ -191,38 +189,23 @@ export default class Connect {
   }
 
   handleRemoteReadyMessage(message: RemoteReadyMessage) {
-    console.log('Remote ready', message);
     this.sendFileMeta();
   }
 
   handleFileMetaMessage(message: FileMetaMessage) {
-    console.log('File meta received', message);
     const fileMeta = message.filemeta;
     this.setFileMeta(fileMeta);
   }
 
   handleFileDownloadRequestMessage(message: FileDownloadRequestMessage) {
-    console.log('File download request received', message);
     this.sendFile();
   }
 
   handleFileChunkMessage(message: FileChunkMessage) {
     if (!this.fileMeta) return;
 
-    console.log('File Chunk received', message);
-
-    // const uInt8 = new TextEncoder().encode('StreamSaver is awesome');
-    // const fileStream = streamSaver.createWriteStream('filename.txt', {
-    //   size: uInt8.byteLength, // (optional filesize) Will show progress
-    //   writableStrategy: undefined, // (optional)
-    //   readableStrategy: undefined, // (optional)
-    // });
-
-    // const writer = fileStream.getWriter();
-    // writer.write(uInt8);
-    // writer.close();
-
     if (!this.fileStreamWriter) {
+      console.log('Starting stream write');
       const fileStream = streamSaver.createWriteStream(this.fileMeta.name, {
         size: this.fileMeta.size,
       });
@@ -233,8 +216,6 @@ export default class Connect {
   }
 
   handleFileChunkEndMessage(message: FileChunkEndMessage) {
-    console.log('File Chunk End received', message);
-
     setTimeout(() => {
       if (this.fileStreamWriter) {
         this.fileStreamWriter.close();

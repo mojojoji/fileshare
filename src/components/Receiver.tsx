@@ -2,7 +2,7 @@ import { observer } from 'mobx-react-lite';
 import { useEffect } from 'react';
 import { useParams } from 'react-router';
 import { useStore } from '../stores';
-import { Box, Button } from '@chakra-ui/react';
+import { Box, Button, Center } from '@chakra-ui/react';
 
 const Receiver = observer(() => {
   const { remoteId }: { remoteId?: string } = useParams();
@@ -24,12 +24,11 @@ const Receiver = observer(() => {
 
   return (
     <Box>
-      Receiving from: {remoteId}
-      <Box>
-        {!connect.fileMeta && <Box>No File available</Box>}
+      <Center flexDir="column">
+        {!connect.fileMeta && <Box mb={5}>No File available</Box>}
 
         {connect.fileMeta && (
-          <Box>
+          <Box mb={5}>
             File Selected
             <Box>Filename : {connect.fileMeta.name}</Box>
             <Box>Type : {connect.fileMeta.type}</Box>
@@ -37,7 +36,7 @@ const Receiver = observer(() => {
           </Box>
         )}
         <Button onClick={handleDownloadClick}>Download</Button>
-      </Box>
+      </Center>
     </Box>
   );
 });

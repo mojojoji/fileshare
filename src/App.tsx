@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { ReactNode } from 'react';
 import './App.css';
 
 import {
@@ -12,22 +12,33 @@ import Sender from './components/Sender';
 import { Box } from '@chakra-ui/layout';
 import { Flex, Heading, Link, Spacer } from '@chakra-ui/react';
 
+function MenuItem(props: { to: string; children: ReactNode }) {
+  return (
+    <Link as={RouterLink} to={props.to} p={3} display="inline-block">
+      {props.children}
+    </Link>
+  );
+}
+
 export default function App() {
   return (
     <Router>
       <Box>
-        <Flex as="nav">
-          <Heading as="h1" size="md">
+        <Flex
+          as="nav"
+          borderBottomWidth="1px"
+          borderBottomStyle="solid"
+          borderColor="gray.200"
+          px={5}
+          mb={5}
+        >
+          <Heading as="h1" size="md" alignItems="center" display="flex">
             File Share
           </Heading>
           <Spacer />
           <Box>
-            <Link as={RouterLink} to="/send">
-              Send
-            </Link>
-            <Link as={RouterLink} to="/receive">
-              Receive
-            </Link>
+            <MenuItem to="/send">Send</MenuItem>
+            <MenuItem to="/receive">Receive</MenuItem>
           </Box>
         </Flex>
 
