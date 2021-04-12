@@ -19,6 +19,9 @@ type FileMessage = {
 };
 type RemoteReadyMessage = {
   type: MessageType.REMOTE_READY;
+  payload: {
+    remoteId: string;
+  };
 };
 
 type Message = FileMessage | RemoteReadyMessage;
@@ -54,7 +57,10 @@ export default class Connect {
   sendReady() {
     console.log('Sending ready', this.connections.length);
     this.connections.forEach((connection) =>
-      connection.send({ type: MessageType.REMOTE_READY })
+      connection.send({
+        type: MessageType.REMOTE_READY,
+        payload: { remoteId: connection.peer },
+      })
     );
   }
 
@@ -92,12 +98,13 @@ export default class Connect {
     connection.on('data', this.handleData.bind(this));
   }
 
-  handleRemoteReady() {
-    console.log('Remote ready');
+  handleRemoteReady(message: RemoteReadyMessage) {
+    console.log('Remote ready', message.payload.remoteId);
     this.isRemoteReady = true;
   }
 
-  handleFile(file: FilePayload) {
+  handleFile(fileMessage: FileMessage) {
+    const file = fileMessage.payload;
     console.log('File received', file);
     saveAs(new Blob([file.data]), file.name);
   }
@@ -106,10 +113,10 @@ export default class Connect {
     console.log('Message received', data);
     switch (data.type) {
       case MessageType.FILE:
-        this.handleFile(data.payload);
+        this.handleFile(data);
         break;
       case MessageType.REMOTE_READY:
-        this.handleRemoteReady();
+        this.handleRemoteReady(data);
         break;
     }
   }
