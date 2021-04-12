@@ -151,7 +151,7 @@ export default class Connect {
           buffer: data,
         });
 
-        await new Promise((resolve) => setTimeout(() => resolve(null), 50));
+        await new Promise((resolve) => setTimeout(() => resolve(null), 100));
         // console.log('Chunk sent');
       }
     } while (readData && !readData.done);
