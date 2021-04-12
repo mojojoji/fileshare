@@ -3,10 +3,18 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import RootStore, { StoreContext } from './stores';
+import { ChakraProvider } from '@chakra-ui/react';
+
+const store = new RootStore();
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <StoreContext.Provider value={store}>
+      <ChakraProvider>
+        <App />
+      </ChakraProvider>
+    </StoreContext.Provider>
   </React.StrictMode>,
   document.getElementById('root')
 );
