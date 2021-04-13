@@ -4,14 +4,25 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import RootStore, { StoreContext } from './stores';
-import { ChakraProvider } from '@chakra-ui/react';
+import { ChakraProvider, extendTheme } from '@chakra-ui/react';
 
 const store = new RootStore();
+
+const theme = extendTheme({
+  styles: {
+    global: {
+      body: {
+        bg: 'gray.100',
+        color: 'black',
+      },
+    },
+  },
+});
 
 ReactDOM.render(
   <React.StrictMode>
     <StoreContext.Provider value={store}>
-      <ChakraProvider>
+      <ChakraProvider theme={theme}>
         <App />
       </ChakraProvider>
     </StoreContext.Provider>

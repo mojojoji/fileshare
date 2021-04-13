@@ -58,7 +58,7 @@ export default class Connect {
   public isRemoteReady: boolean = false;
 
   public fileMeta: FileMeta | null = null;
-  private fileToSend: File | null = null;
+  public fileToSend: File | null = null;
 
   private fileStreamWriter: WritableStreamDefaultWriter | null = null;
 

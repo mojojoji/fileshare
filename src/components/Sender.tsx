@@ -1,24 +1,19 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
-import { Box, Button, Link, Flex, Center } from '@chakra-ui/react';
+import { Box, Button, Link, Flex, Center, Icon, Text } from '@chakra-ui/react';
 import { observer } from 'mobx-react-lite';
 import { useStore } from '../stores';
 import QRCode from 'qrcode.react';
-import { useResizeDetector } from 'react-resize-detector';
+import { FaFile } from 'react-icons/fa';
 
 const Sender = observer(() => {
-  const [file, setFile] = useState<File | null>(null);
   const store = useStore();
   const { connect } = store;
-
-  const { width = 128, height = 128, ref } = useResizeDetector();
-  const qrSize = Math.min(width, 300);
 
   const handleFileChange = (e: Event) => {
     const input = e.target as HTMLInputElement;
     const selectedFiles = input.files;
     if (selectedFiles && selectedFiles.length > 0) {
-      setFile(selectedFiles[0]);
       const selectedFile = selectedFiles[0];
       connect.setFileToSend(selectedFile);
     }
@@ -34,35 +29,48 @@ const Sender = observer(() => {
   const receiverUrl = `${window.location.origin}/receive/${connect.id}`;
 
   return (
-    <Flex px={10} flexDirection="column">
+    <Flex flexDirection="column">
       <Flex justifyContent="center" flexDirection="column">
-        <Button onClick={handleUploadClick} mb={5}>
-          Select file
-        </Button>
-        {!connect.fileMeta && <Box textAlign="center">No File selected</Box>}
-
-        {connect.fileMeta && (
-          <Box mx="auto" mb={5}>
-            <Box>Filename : {connect.fileMeta.name}</Box>
-            <Box>Type : {connect.fileMeta.type}</Box>
-            <Box>Size : {connect.fileMeta.size}</Box>
+        {!connect.fileMeta && (
+          <Box textAlign="center">
+            <Button onClick={handleUploadClick} mb={5}>
+              Select file
+            </Button>
           </Box>
         )}
-      </Flex>
-      {file && connect.id && (
-        <Box>
-          <Center padding={5} ref={ref}>
-            <QRCode value={receiverUrl} size={qrSize} />
-          </Center>
 
-          <Center padding={5}>
-            <Link href={receiverUrl} isExternal>
-              {receiverUrl}
+        {connect.fileMeta && connect.fileToSend && (
+          <Flex
+            mb={5}
+            boxShadow="xs"
+            rounded="md"
+            fontSize="sm"
+            color="gray.600"
+            flexDir="column"
+            p={3}
+          >
+            <Center mb={5}>
+              <Center mr={5}>
+                <Icon as={FaFile} boxSize={8} />
+              </Center>
+              <Box>
+                <Text fontWeight="semibold" fontSize="md">
+                  {connect.fileMeta.name}
+                </Text>
+                <Text fontSize="sm">
+                  {(connect.fileMeta.size / 1024).toFixed(2)} KB
+                </Text>
+              </Box>
+            </Center>
+            <Center mb={5}>
+              <QRCode value={receiverUrl} size={250} />
+            </Center>
+            <Link href={receiverUrl} isExternal as={Button}>
+              Link
             </Link>
-          </Center>
-          {connect.isRemoteReady && <Box>Remote ready, sending file</Box>}
-        </Box>
-      )}
+          </Flex>
+        )}
+      </Flex>
     </Flex>
   );
 });
